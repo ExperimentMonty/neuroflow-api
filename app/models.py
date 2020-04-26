@@ -9,6 +9,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, unique=True)
     password_hash = db.Column(db.String(128))
+    longest_streak = db.Column(db.Integer, default=0)
     moods = db.relationship('Mood', backref='owner', lazy='dynamic')
 
     def set_password(self, password):

@@ -34,9 +34,11 @@ def set_mood():
     # Check to see if this user currently has a streak, if so, increment it
     today = date.today()
     yesterday = today - timedelta(days=1)
-    streak_mood = Mood.query.filter(Mood.timestamp.between(yesterday, today)).first()
+    streak_mood = Mood.query.filter_by(owner=g.user).filter(Mood.timestamp.between(yesterday, today)).first()
     if streak_mood:
         mood = Mood(value=request.json['mood'], owner=g.user, streak=streak_mood.streak+1)
+        # Check to see if this is a new longest streak
+        g.user.longest_streak = max(g.user.longest_streak, mood.streak)
     else:
         mood = Mood(value=request.json['mood'], owner=g.user)
     db.session.add(mood)
@@ -52,4 +54,15 @@ def get_mood():
     if not moods:
         return jsonify({'moods': '', 'streak': 0})
     most_recent_mood = moods[0]
-    return jsonify({'moods': [mood.as_dict() for mood in moods], 'streak': most_recent_mood.streak})
+
+    # Check where this user's streak lays amidst other users
+    users = User.query.order_by('longest_streak').all()
+    index = users.index(g.user)
+    # Index is zero-offset, so need to add 1
+    percentile = int((index+1) / len(users) * 100)
+
+    if percentile >= 50:
+        return jsonify({'moods': [mood.as_dict() for mood in moods], 'streak': most_recent_mood.streak, 'percentile': percentile})
+    else:
+        return jsonify({'moods': [mood.as_dict() for mood in moods], 'streak': most_recent_mood.streak})
+
