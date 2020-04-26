@@ -25,6 +25,7 @@ class Mood(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.String)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    streak = db.Column(db.Integer, default=1)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def as_dict(self):

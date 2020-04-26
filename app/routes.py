@@ -1,5 +1,6 @@
 from flask import request, jsonify, g, abort
 from sqlalchemy import desc
+from datetime import date, timedelta
 
 from app import app, db, auth
 from app.models import Mood, User
@@ -30,7 +31,14 @@ def create_user():
 @app.route('/moods', methods=['POST'])
 @auth.login_required
 def set_mood():
-    mood = Mood(value=request.json['mood'], owner=g.user)
+    # Check to see if this user currently has a streak, if so, increment it
+    today = date.today()
+    yesterday = today - timedelta(days=1)
+    streak_mood = Mood.query.filter(Mood.timestamp.between(yesterday, today)).first()
+    if streak_mood:
+        mood = Mood(value=request.json['mood'], owner=g.user, streak=streak_mood.streak+1)
+    else:
+        mood = Mood(value=request.json['mood'], owner=g.user)
     db.session.add(mood)
     db.session.commit()
     return jsonify(mood.as_dict())
@@ -40,4 +48,8 @@ def set_mood():
 @auth.login_required
 def get_mood():
     moods = Mood.query.filter_by(owner=g.user).order_by(desc('id')).all()
-    return jsonify([mood.as_dict() for mood in moods])
+    # If the user doesn't have any moods left, don't fail out, give default message
+    if not moods:
+        return jsonify({'moods': '', 'streak': 0})
+    most_recent_mood = moods[0]
+    return jsonify({'moods': [mood.as_dict() for mood in moods], 'streak': most_recent_mood.streak})
