@@ -1,6 +1,10 @@
 # neuroflow-api
 REST API for NeuroFlow coding assignment
 
+## Running the app
+Set up a python virtual environment, run `pip install -r requirements.txt`, set the environment variable `FLASK_APP` with value `neuroflow.py`, then run `python -m flask run` to get the application running.
+
+
 ## Sample API Commands
 
 #### Create a user
