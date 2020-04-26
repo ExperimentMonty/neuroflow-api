@@ -30,7 +30,7 @@ def create_user():
 @app.route('/moods', methods=['POST'])
 @auth.login_required
 def set_mood():
-    mood = Mood(value=request.json['mood'])
+    mood = Mood(value=request.json['mood'], owner=g.user)
     db.session.add(mood)
     db.session.commit()
     return jsonify(mood.as_dict())
@@ -39,5 +39,5 @@ def set_mood():
 @app.route('/moods', methods=['GET'])
 @auth.login_required
 def get_mood():
-    moods = Mood.query.order_by(desc('id')).all()
+    moods = Mood.query.filter_by(owner=g.user).order_by(desc('id')).all()
     return jsonify([mood.as_dict() for mood in moods])
