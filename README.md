@@ -2,7 +2,7 @@
 REST API for NeuroFlow coding assignment
 
 ## Running the app
-Set up a python virtual environment, run `pip install -r requirements.txt`, set the environment variable `FLASK_APP` with value `neuroflow.py`, then run `python -m flask run` to get the application running.
+Set up a python virtual environment, run `pip install -r requirements.txt`, set the environment variable `FLASK_APP` with value `neuroflow.py`, then run `flask db init`, `flask db upgrade` to get the DB set up, and then run `python -m flask run` to get the application running.
 
 
 ## Sample API Commands
