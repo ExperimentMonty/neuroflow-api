@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # this script is used to boot a Docker container
 source venv/bin/activate
 while true; do
@@ -10,4 +10,4 @@ while true; do
     sleep 5
 done
 
-flask run
+flask run --host 0.0.0.0
